@@ -1,11 +1,21 @@
+import uuid
+
 from flask import jsonify
 
 answers = []
 
 
+class User:
+    def __init__(self, email, username, password):
+        self.id = uuid.uuid4().int
+        self.email = email
+        self.username = username
+        self.password = password
+
+
 class Questions(object):
-    def __init__(self, questionId, question, author, create_date, answers):
-        self.questionId = questionId
+    def __init__(self, question, author, create_date, answers):
+        self.questionId = uuid.uuid4().int
         self.question = question
         self.author = author
         self.create_date = create_date
