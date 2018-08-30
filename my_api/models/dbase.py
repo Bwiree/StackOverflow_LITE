@@ -4,6 +4,7 @@ from passlib.hash import pbkdf2_sha256 as sha256
 from my_api.models.questions import Question
 from my_api.models.users import User
 from my_api.models.answers import Answer
+from werkzeug.security import generate_password_hash
 
 
 class DatabaseConnection(object):
@@ -55,7 +56,6 @@ class DatabaseConnection(object):
         try:
             create_table_command = """CREATE TABLE IF NOT EXISTS answers(
             answerId serial PRIMARY KEY,
-            questionId INT,
             body VARCHAR(150),
             author VARCHAR(50),
             accept_status boolean DEFAULT FALSE,
@@ -81,16 +81,14 @@ class DatabaseConnection(object):
 
     def get_user(self, username):
         try:
-
-            sql_command = "SELECT *FROM users WHERE username = '{}'".format(username)
-            self.cursor.execute(sql_command)
+            sql_command = "SELECT id, username, password FROM users WHERE username = %s"
+            self.cursor.execute(sql_command, (username,))
             user = self.cursor.fetchone()
-            email = user[1]
-            username = user[2]
-            password = user[3]
-            return email, username, password
+            print(user)
+            username = user[1]
+            password = user[2]
+            return user, password, username
         except Exception as e:
-            # print({'error': 'User not found {}'.format(e)})
             return {'error': 'User not found {}'.format(e)}
 
     def create_question(self, body, author):
@@ -144,17 +142,13 @@ class DatabaseConnection(object):
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
 
-    def answer_question(self, questionId, body, author):
-        answers = Answer(questionId, body, author)
-        sql = "INSERT INTO answers(questionId, body, author) VALUES (%s, %s, %s);"
-        print(sql)
-        self.cursor.execute(sql, (answers.questionId, str(answers.body), answers.author))
+    def answer_question(self, body, author, questionId):
+        answers = Answer(body, author, questionId)
+        sql = "INSERT INTO answers(body, author) VALUES (%s, %s);"
+        self.cursor.execute(sql, (str(answers.body), answers.author))
 
     def hash_password(self, password):
-        return sha256.hash(password)
-
-    def confirm_password_hash(self, password, password_hash):
-        return sha256.verify(password, password_hash)
+        return generate_password_hash(str(password))
 
     def delete_questions(self, questionId):
         sql = "DELETE FROM questions WHERE  questionId = {} ".format(
