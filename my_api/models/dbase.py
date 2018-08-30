@@ -94,12 +94,8 @@ class DatabaseConnection(object):
             return {'error': 'User not found {}'.format(e)}
 
     def create_question(self, body, author):
-        user_sql = "SELECT id FROM users WHERE username = '{}'".format('Bwire')
-        self.cursor.execute(user_sql)
-        user = self.cursor.fetchone()
-
         questions = Question(body,author)
-        sql_command = "INSERT INTO questions(userId, body,author) VALUES ('{}','{}','{}')".format(user[0], questions.body, questions.author)
+        sql_command = "INSERT INTO questions(body,author) VALUES ('{}','{}')".format(questions.body, questions.author)
         pprint(sql_command)
         self.cursor.execute(sql_command)
 

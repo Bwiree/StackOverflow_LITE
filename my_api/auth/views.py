@@ -65,30 +65,25 @@ class RegisterAPI(Resource):
     def post(self):
         if not request.is_json:
             return Response(json.dumps(['JSON is missing']), status=400, mimetype='application/json')
-        email = request.args.get('email', None)
-        username = request.args
-        password = request.args.get('password', None)
-        confirm_password = request.args.get('confirm_password', None)
+        data = request.get_json()
+        email = data['email']
+        username = data['username']
+        password = data['password']
+        confirm_password = data['confirm_password']
         if not email:
-            return jsonify({
-                'message': 'email address missing!'
-            }), 400
+            return Response(json.dumps(['email address is missing!']), status=400, mimetype='application/json')
         elif not username:
-            return jsonify({
-                'message': 'user name required'
-            }),400
+            return Response(json.dumps(['User name is required!']), status=400, mimetype='application/json')
         elif not password:
-            return jsonify({
-                'message': 'please provide your password!'
-            }), 400
+            return Response(json.dumps(['please provide your password!']), status=400, mimetype='application/json')
         elif not confirm_password:
-            return jsonify({
-                'message': 'please confirm your password!'
-            }), 400
-        if len(username) > 1:
+            return Response(json.dumps(['please confirm your password!']), status=400, mimetype='application/json')
+        if isinstance(email,str) and not username.isspace() and len(username) > 1:
             if confirm_password == password:
                 database_connection.register(email,username,password)
                 return {'message': 'User registered successfully'}, 201
+            return Response(json.dumps(['password not matching!']), status=400, mimetype='application/json')
+        return Response(json.dumps(['Please provide a valid input!']), status=400, mimetype='application/json')
 
 
 api.add_resource(RegisterAPI, '/auth/register')
