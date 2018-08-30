@@ -30,12 +30,41 @@ class QuestionsBox(Resource):
 api.add_resource(QuestionsBox, '/questions')
 
 
+class Question(Resource):
+    def get(self, questionId):
+        question_dict = database_connection.get_specific_question(questionId)
+        if question_dict:
+           return make_response(jsonify(question_dict), 200)
+
+        return Response(json.dumps(['Question does not exist']), status=404, mimetype='application/json')
+
+    def delete(self, questionId):
+        database_connection.delete_questions(questionId)
+        return {'message': 'Question {} deleted'.format(questionId)}, 204
+
+
+api.add_resource(Question, '/questions/<int:questionId>')
+
+
+class AddAnswer(Resource):
+    def post(self, questionId):
+        data = request.get_json()
+        body = data['body']
+        author = data['author']
+        questionId = data['questionId']
+        if isinstance(body, str) and not body.isspace() and len(body) > 0:
+            database_connection.answer_question(body,author,questionId), 201
+            return Response(json.dumps(['Answer added successfully']), status=201, mimetype='application/json')
+        return Response(json.dumps(['All fields must not be empty']), status=404, mimetype='application/json')
+
+
+api.add_resource(AddAnswer, '/questions/<int:questionId>/answers')
+
+
 class RegisterAPI(Resource):
     def post(self):
         if not request.is_json:
-            return jsonify({
-                'message': 'json missing'
-            }),400
+            return Response(json.dumps(['JSON is missing']), status=400, mimetype='application/json')
         email = request.args.get('email', None)
         username = request.args
         password = request.args.get('password', None)
@@ -80,37 +109,3 @@ class Login(Resource):
 
 
 api.add_resource(Login, '/auth/Login')
-
-
-
-
-class Question(Resource):
-    def get(self, questionId):
-        question_dict = database_connection.get_specific_question(questionId)
-        if question_dict:
-           return make_response(jsonify(question_dict), 200)
-
-        return Response(json.dumps(['Question does not exist']), status=404, mimetype='application/json')
-
-    def delete(self, questionId):
-        database_connection.delete_questions(questionId)
-        return {'message': 'Question {} deleted'.format(questionId)}, 204
-
-
-api.add_resource(Question, '/questions/<int:questionId>')
-
-
-class AddAnswer(Resource):
-    def post(self, questionId):
-        data = request.get_json()
-        body = data['body']
-        author = data['author']
-        questionId = data['questionId']
-        if isinstance(body, str) and not body.isspace() and len(body) > 0:
-            database_connection.answer_question(body,author,questionId), 201
-            return Response(json.dumps(['Answer added successfully']), status=201, mimetype='application/json')
-        return Response(json.dumps(['All fields must not be empty']), status=404, mimetype='application/json')
-
-
-api.add_resource(AddAnswer, '/questions/<int:questionId>/answers')
-
