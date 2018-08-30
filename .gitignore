@@ -1,0 +1,10 @@
+.idea/StackOverflow_LITE.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/workspace.xml
+env/
+my_api/__pycache__/
+my_api/api/__pycache__/
+my_api/auth/__pycache__/
+my_api/instance/__pycache__/
+my_api/models/__pycache__/

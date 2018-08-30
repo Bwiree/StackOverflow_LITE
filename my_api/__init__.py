@@ -1,0 +1,1 @@
+from my_api.auth.views import auth_blueprint
