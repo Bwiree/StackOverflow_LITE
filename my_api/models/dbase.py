@@ -56,6 +56,7 @@ class DatabaseConnection(object):
         try:
             create_table_command = """CREATE TABLE IF NOT EXISTS answers(
             answerId serial PRIMARY KEY,
+            questionId INT ,
             body VARCHAR(150),
             author VARCHAR(50),
             accept_status boolean DEFAULT FALSE,
@@ -158,9 +159,10 @@ class DatabaseConnection(object):
         self.cursor.execute(sql)
         return {"message": "Question {} deleted".format(questionId)}
 
-    def update(self, accept_status, answerId):
-        sql = 'UPDATE answers SET accept_status = {} WHERE answerId = {}'.format(accept_status, answerId)
-        self.cursor.execute(sql)
+    def update(self,questionId, body, author):
+        answers = Answer(body,author, questionId)
+        sql = 'UPDATE answers SET accept_status = {} WHERE answerId = %s'
+        self.cursor.execute(sql, (answers.accept_status),)
         return {'message': 'Answer status updated'}
 
 
@@ -169,7 +171,7 @@ if __name__ == '__main__':
     connect.create_users_table()
     connect.create_questions_table()
     connect.create_answers_table()
-    connect.register(email="solomonbwire@gmail.com",username="Bwire",password="nodsbsbn" )
-    connect.create_question(body="What is programming",author="Jackie")
-    connect.get_all_questions()
-    # connect.delete_questions(questionId=1)
+    #connect.register()
+    #connect.create_question()
+    #connect.get_all_questions()
+    # connect.delete_questions(questionId)
