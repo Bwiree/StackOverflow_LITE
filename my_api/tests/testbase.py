@@ -1,68 +1,64 @@
 import unittest
-from my_api.api import create_app
-from flask import current_app
-
-from my_api.api import app
-from my_api.models.questions import Question
-from my_api.models.answers import Answer
-from my_api.auth import views
-from my_api.instance.config import Config
-from my_api.models.dbase import DatabaseConnection
 from my_api.instance.config import TestingConfig
+from my_api.api import create_app
+from my_api.models.dbase import DatabaseConnection
 
 
 class TestBase(unittest.TestCase):
-    def creating_app(self):
-        app = create_app()
-        app.config.from_object(TestingConfig)
-        return app
 
     def setUp(self):
-        self.app = self.creating_app()
-        self.connection = DatabaseConnection()
-        self.connection.create_users_table()
-        self.connection.create_questions_table()
-        self.connection.create_answers_table()
+        self.app = create_app(TestingConfig)
+        self.client = self.app.test_client()
+        db = DatabaseConnection()
+        db.create_users_table()
+        db.create_questions_table()
+        db.create_answers_table()
 
-        self.connection.register(email="solomonbwire@gmail.com",username="Bwire",password="12345678")
+        self.user = {
+            "id": "1",
+            "email": "solomonbwire@gmail.com",
+            "username": "Bwire",
+            "password": "1234"
+        }
+        self.question = {
+            "qestionId": "1",
+            "userId": "1",
+            "body": "What is programming?",
+            "author": "Bwire",
+            "create_date": ""
+        }
+        self.answer = {
+            "answerId": "1",
+            "questionId": "Set of rules",
+            "body": "1",
+            "author": "Sharon",
+            "accept_status": "t",
+            "published_date": ""
+        }
+        self.register = {
+            "email": "sdyftybhv@gmail.com",
+            "username": "Ben",
+            "password": "12345678",
+            "confirm_password": "12345678"
+        }
+        self.login = {
+            "username": "sharon",
+            "password": "1234"
+        }
+
+        self.question_add = {
+            "question": "What is c++?"
+        }
+        self.another_question = {
+            "question": "What is python?"
+        }
+        self.answer_post = {
+            "answer": "hell nooo"
+        }
+        self.answer_post_empty = {
+            "answer": ""
+        }
 
     def tearDown(self):
-        self.connection.drop_table('users')
-        self.connection.drop_table('questions')
-        self.connection.drop_table('answers')
-
-
-def createQnsList():
-    '''Generates a List of five questions with different topics
-    and links answers to them'''
-
-    QnsList = []
-    body = ""
-
-    authors = [0, '', '', '', '', '']
-
-    for i in range(1, 6):
-        Qn = Question(authors[i], body)
-        QnsList.append(Qn.__repr__())
-    return QnsList
-
-
-questionsList = createQnsList()
-
-
-def createAnsList():
-    '''Generates list of five answers'''
-    AnsList = []
-    body = ""
-
-    l = [question['questionId'] for question in questionsList]
-    qnIds = [id for id in l]
-    qnIds[:0] = [0]
-
-    for i in range(1, 6):
-        Ans = Answer(body, qnIds[i])
-        AnsList.append(Ans.__repr__())
-    return AnsList
-
-
-answersList = createAnsList()
+        db = DatabaseConnection()
+        db.drop_table()

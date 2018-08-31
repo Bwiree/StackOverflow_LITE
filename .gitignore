@@ -8,3 +8,6 @@ my_api/api/__pycache__/
 my_api/auth/__pycache__/
 my_api/instance/__pycache__/
 my_api/models/__pycache__/
+.idea/inspectionProfiles/
+.pytest_cache/
+my_api/tests/__pycache__/

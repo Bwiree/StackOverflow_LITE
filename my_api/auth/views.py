@@ -137,7 +137,7 @@ class Login(Resource):
             return Response(json.dumps(['Password can not be empty!']), status=400, mimetype='application/json')
         users = database_connection.get_user(username)
         print(users)
-        user = [user for user in users if user[1] == username and check_password_hash(user[2],str(password))]
+        user = [user for user in users if user[2] == username and check_password_hash(user[3],str(password))]
         if not user:
             return Response(json.dumps(['Invalid username or password!']), status=400, mimetype='application/json')
         access_token = create_access_token(identity=username, fresh=timedelta(minutes=6000))
